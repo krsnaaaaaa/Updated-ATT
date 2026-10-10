@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#f5f6f8">
+<title>Office Log</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#14181f;--mut:#6b7380;--line:#e6e8ec;--soft:#f0f2f5;--acc:#2f4bd8;--accs:#e9edff;
+--present:#1f9d6b;--holiday:#3b6fd4;--leave:#d48a1a;--offday:#8a93a3;--paid:#1f9d6b;--unpaid:#d64545;--r:14px}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1013;--card:#16191e;--ink:#eef0f3;--mut:#8b93a1;--line:#252a31;--soft:#1d2127;--acc:#7b90ff;--accs:#1f2644}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--ink)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+#login{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);z-index:50}
+.lc{width:100%;max-width:340px}
+.lc h1{font-size:26px;letter-spacing:-.5px;margin-bottom:4px}.lc p{color:var(--mut);font-size:14px;margin-bottom:26px}
+.f{margin-bottom:14px}.f label{display:block;font-size:12.5px;color:var(--mut);margin-bottom:6px;font-weight:500}
+.f input,.f select,.f textarea{width:100%;padding:12px 13px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:15px}
+.btn{padding:12px 16px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--card)}
+.btn.p{background:var(--ink);color:var(--bg);border-color:var(--ink);width:100%}
+.btn.a{background:var(--acc);color:#fff;border-color:var(--acc)}
+.btn.sm{padding:9px 13px;font-size:13px}
+.err{color:var(--unpaid);font-size:13px;margin-top:10px;min-height:18px}
+#fp{display:none;margin-top:10px;width:100%}
+#app{display:none}
+.bar{position:sticky;top:0;z-index:20;background:var(--bg);display:flex;justify-content:space-between;align-items:center;padding:14px 18px 6px}
+.bar h2{font-size:17px;letter-spacing:-.2px}.bar small{color:var(--mut);font-size:12px;display:block}
+.bar .acts{display:flex;gap:8px}
+.ib{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:18px}
+.tabs{position:sticky;top:57px;z-index:19;background:var(--bg);display:flex;gap:2px;overflow-x:auto;padding:4px 14px 0;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 12px;font-size:13.5px;font-weight:500;color:var(--mut);white-space:nowrap;border-bottom:2px solid transparent}
+.tab.on{color:var(--ink);border-color:var(--ink);font-weight:600}
+main{max-width:860px;margin:0 auto;padding:18px 16px 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h3{font-size:14px;font-weight:600;margin-bottom:12px}
+.top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.top h1{font-size:20px;letter-spacing:-.3px}
+.pick{display:flex;gap:8px}.pick select{padding:9px 28px 9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:14px;font-weight:500}
+.hero{background:var(--ink);color:var(--bg);border-radius:var(--r);padding:22px;margin-bottom:14px}
+.hero .l{font-size:13px;opacity:.7}.hero .v{font-size:36px;font-weight:700;letter-spacing:-1px;margin:6px 0 4px}.hero .s{font-size:13px;opacity:.7}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:620px){.grid.c4{grid-template-columns:repeat(4,1fr)}.grid.c3{grid-template-columns:repeat(3,1fr)}}
+.st{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.st .l{font-size:12.5px;color:var(--mut)}.st .v{font-size:26px;font-weight:700;margin-top:4px;letter-spacing:-.5px}.st .s{font-size:11.5px;color:var(--mut);margin-top:2px}
+.sec{font-size:13px;color:var(--mut);font-weight:600;margin:20px 0 10px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%}
+.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+.dt{width:46px;text-align:center;flex-shrink:0}.dt b{display:block;font-size:20px;letter-spacing:-.5px}.dt span{font-size:11.5px;color:var(--mut)}
+.mid{flex:1;min-width:0}.mid .t{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mid .s{font-size:12px;color:var(--mut);margin-top:2px}
+.pp{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.ra{display:flex;gap:4px}.ra button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);font-size:14px}
+.dow,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow span{text-align:center;font-size:11.5px;color:var(--mut);padding-bottom:4px}
+.day{aspect-ratio:1;border-radius:10px;background:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;font-size:14px;font-weight:600;border:1.5px solid transparent}
+.day small{font-size:9px;color:var(--mut);font-weight:400}
+.day.e{background:none;pointer-events:none}.day.t{border-color:var(--acc)}.day.sel{border-color:var(--ink)}
+.day.s-present{background:color-mix(in srgb,var(--present) 18%,transparent)}.day.s-holiday{background:color-mix(in srgb,var(--holiday) 18%,transparent)}
+.day.s-leave{background:color-mix(in srgb,var(--leave) 20%,transparent)}.day.s-offday{background:color-mix(in srgb,var(--offday) 22%,transparent)}
+.day.p-paid{background:color-mix(in srgb,var(--paid) 20%,transparent)}.day.p-unpaid{background:color-mix(in srgb,var(--unpaid) 18%,transparent)}
+.day .dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%}
+.leg{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:12px;color:var(--mut)}.leg span{display:flex;align-items:center;gap:6px}.leg i{width:10px;height:10px;border-radius:3px}
+.det{background:var(--soft);border-radius:12px;padding:14px;margin-top:14px}.det .h{font-weight:600}.det .s{font-size:12px;color:var(--mut);margin:2px 0 10px}
+.dr{display:flex;justify-content:space-between;padding:6px 0;font-size:13.5px}.dr span:first-child{color:var(--mut)}
+.bars{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--soft)}.bars div{height:100%}
+.mini{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}.mini:last-child{border:0}
+.mini b{font-weight:600}
+.empty{text-align:center;color:var(--mut);padding:28px 10px;font-size:14px}
+.hm{scroll-margin-top:120px}.hm h4{font-size:15px;margin:22px 0 4px}.hm .sub{font-size:12px;color:var(--mut);margin-bottom:8px}
+.hi{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.hi:last-child{border:0}.hi.past{opacity:.45}
+.hi .d{width:40px;font-size:20px;font-weight:700;text-align:center}.hi .n{font-size:14px;font-weight:500}.hi .a{font-size:12px;color:var(--mut)}
+.mbg{position:fixed;inset:0;background:rgba(10,12,16,.5);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mbg.on{display:flex}
+@media(min-width:560px){.mbg{align-items:center;padding:18px}}
+.modal{background:var(--card);width:100%;max-width:420px;border-radius:20px 20px 0 0;padding:20px;max-height:92vh;overflow:auto}
+@media(min-width:560px){.modal{border-radius:20px}}
+.modal h4{font-size:18px}.modal .ms{font-size:12.5px;color:var(--mut);margin:2px 0 16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sb{padding:11px;border-radius:10px;border:1px solid var(--line);font-size:13.5px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:7px}
+.sb i{width:8px;height:8px;border-radius:50%}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.chip{padding:6px 11px;border-radius:20px;background:var(--soft);font-size:12.5px}
+.chip:hover{background:var(--accs);color:var(--acc)}
+.mf{display:flex;gap:9px;margin-top:16px}.mf .btn{flex:1}
+.set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.set:last-child{border:0}
+.set small{display:block;color:var(--mut);font-size:12px}.set input{width:110px;padding:9px 11px;border-radius:9px;border:1px solid var(--line);background:var(--card);text-align:right}
+.fi{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:15px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,80px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:10px;font-size:14px;opacity:0;transition:.25s;z-index:70}
+.toast.on{transform:translate(-50%,0);opacity:1}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="login"><div class="lc">
+  <h1>Office Log</h1><p>Attendance and salary tracker</p>
+  <div class="f"><label>Username</label><input id="u" autocomplete="username" autocapitalize="none"></div>
+  <div class="f"><label>Password</label><input id="pw" type="password" autocomplete="current-password"></div>
+  <button class="btn p" id="loginBtn">Sign in</button>
+  <button class="btn" id="fp">Unlock with fingerprint</button>
+  <div class="err" id="err"></div>
+</div></div>
+
+<div id="app">
+  <div class="bar"><div><h2 id="barName">Office Log</h2><small id="sync"></small></div>
+    <div class="acts"><button class="ib" id="addBtn" title="Log a day">+</button><button class="ib" id="outBtn" title="Sign out">⎋</button></div></div>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="main"></main>
+</div>
+
+<div class="mbg" id="mbg"><div class="modal">
+  <h4 id="mT">Log a day</h4><div class="ms" id="mS"></div>
+  <div class="f"><label>Date</label><input type="date" id="mD"></div>
+  <div class="f"><label>Day status</label><div class="seg" id="mSt" style="margin:0"></div></div>
+  <div class="f"><label>Pay status</label><div class="seg" id="mPy" style="margin:0"></div></div>
+  <div class="f"><label>School</label><input id="mDesc" list="schools" placeholder="Type or pick a school" autocomplete="off"><datalist id="schools"></datalist><div class="chips" id="mChips"></div></div>
+  <div class="mf"><button class="btn" id="mCancel">Cancel</button><button class="btn a" id="mSave">Save</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ---------- BS calendar (2080–2090) ---------- */
+const NPM=["Baisakh","Jestha","Ashadh","Shrawan","Bhadra","Ashwin","Kartik","Mangsir","Poush","Magh","Falgun","Chaitra"];
+const ENM=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const ND=["०","१","२","३","४","५","६","७","८","९"];
+const BSD={2080:[31,32,31,32,31,30,30,30,29,29,30,30],2081:[31,32,31,32,31,30,30,30,29,30,29,31],2082:[31,31,32,31,31,31,30,29,30,29,30,30],2083:[31,31,32,31,31,31,30,29,30,29,30,30],
+2084:[31,32,31,32,31,30,30,30,29,29,30,31],2085:[30,32,31,32,31,30,30,30,29,30,29,31],2086:[31,31,32,31,31,31,30,29,30,29,30,30],2087:[31,31,32,32,31,30,30,29,30,29,30,30],
+2088:[31,32,31,32,31,30,30,30,29,29,30,31],2089:[30,32,31,32,31,30,30,30,29,30,29,31],2090:[31,31,32,31,31,31,30,29,30,29,30,30]};
+const EP=new Date(2023,3,14),DAY=864e5; // BS 2080-01-01
+const sum=a=>a.reduce((x,y)=>x+y,0);
+function bsToAd(y,m,d){let n=0;for(let i=2080;i<y;i++)n+=sum(BSD[i]);for(let i=0;i<m-1;i++)n+=BSD[y][i];return new Date(EP.getFullYear(),EP.getMonth(),EP.getDate()+n+d-1)}
+function adToBs(dt){let diff=Math.round((new Date(dt.getFullYear(),dt.getMonth(),dt.getDate())-EP)/DAY),y=2080;while(BSD[y]&&diff>=sum(BSD[y])){diff-=sum(BSD[y]);y++}if(!BSD[y]||diff<0)return{y:y,m:1,d:1};let m=0;while(diff>=BSD[y][m]){diff-=BSD[y][m];m++}return{y,m:m+1,d:diff+1}}
+const npn=n=>String(n).replace(/\d/g,c=>ND[c]);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const pd=k=>new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
+const dim=(y,m)=>new Date(y,m,0).getDate();
+const dname=d=>d.toLocaleDateString('en-US',{weekday:'long'});
+const fmt=d=>d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* Holidays — verify against Hamro Patro and edit as needed */
+const HOL=[[2082,1,1,"Nepali New Year"],[2082,1,18,"Loktantra Diwas"],[2082,2,15,"Buddha Jayanti"],[2082,6,10,"Ghatasthapana"],[2082,6,17,"Fulpati"],[2082,6,18,"Maha Ashtami"],[2082,6,19,"Maha Nawami"],[2082,6,20,"Vijaya Dashami"],[2082,7,5,"Laxmi Puja"],[2082,7,7,"Govardhan Puja"],[2082,7,8,"Bhai Tika"],[2082,8,11,"Chhath Parba"],[2082,9,10,"Tamu Lhosar"],[2082,10,1,"Maghe Sankranti"],[2082,10,16,"Sonam Lhosar"],[2082,11,7,"Maha Shivaratri"],[2082,11,16,"Gyalpo Lhosar"],[2082,12,3,"Fagu Purnima (Holi)"],
+[2083,1,1,"Nepali New Year"],[2083,1,8,"Loktantra Diwas"],[2083,1,19,"Ram Nawami"],[2083,2,4,"Buddha Jayanti"],[2083,6,29,"Ghatasthapana"],[2083,7,6,"Fulpati"],[2083,7,7,"Maha Ashtami"],[2083,7,8,"Maha Nawami"],[2083,7,9,"Vijaya Dashami"],[2083,7,24,"Laxmi Puja"],[2083,7,26,"Govardhan Puja"],[2083,7,27,"Bhai Tika"],[2083,8,1,"Chhath Parba"],[2083,10,1,"Maghe Sankranti"],[2083,11,1,"Maha Shivaratri"],[2083,12,8,"Fagu Purnima (Holi)"]];
+const holOf=(y,m,d)=>{const h=HOL.find(h=>h[0]==y&&h[1]==m&&h[2]==d);return h?h[3]:null};
+
+/* ---------- Config & data ---------- */
+const SB_URL="https://saqkrbrygkueqcsggtva.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcWtyYnJ5Z2t1ZXFjc2dndHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMTEyMzcsImV4cCI6MjA5NTg4NzIzN30.Yipum1s69asaBJdhplAs1izsgd80tJoWijUqgQOSIGw";
+const AU="user";
+const SM={present:["Present","var(--present)"],holiday:["Holiday","var(--holiday)"],leave:["Leave","var(--leave)"],offday:["Offday","var(--offday)"]};
+const PM={paid:["Paid","var(--paid)"],unpaid:["Unpaid","var(--unpaid)"]};
+let sb=null,DB={},PROFILE={};const SYNC={txt:''};
+const D=id=>document.getElementById(id);
+async function loadAll(){
+  PROFILE=JSON.parse(localStorage.getItem('ol_profile')||'null')||{name:"Rohan Adhikari",role:"Office Staff",salary:{base:5000,perPresent:800,currency:"Rs"}};
+  SYNC.txt='Saved on this device';
+  const rawLocal=localStorage.getItem('ol_records');if(rawLocal&&!localStorage.getItem('ol_records_backup'))localStorage.setItem('ol_records_backup',rawLocal);
+  if(sb){try{let all=[],from=0;for(;;){const{data,error}=await sb.from('attendance').select('*').order('day').range(from,from+999);if(error)throw error;all=all.concat(data||[]);if(!data||data.length<1000)break;from+=1000}
+    DB={};const lc=v=>v?String(v).trim().toLowerCase():null;all.forEach(r=>{const k=String(r.day).slice(0,10);DB[k]={day:k,status:lc(r.status),pay:lc(r.pay),desc:r.descr||null}});
+    const odd=Object.keys(DB).filter(k=>!/^\d{4}-\d{2}-\d{2}$/.test(k)||(DB[k].status&&!SM[DB[k].status])||(DB[k].pay&&!PM[DB[k].pay])).length;
+    SETERR='';try{const{data:st,error:se}=await sb.from('app_settings').select('data').eq('id',1).maybeSingle();if(se)throw se;if(st&&st.data){PROFILE=st.data;localStorage.setItem('ol_profile',JSON.stringify(PROFILE))}else await pushProfile()}catch(x){SETERR=x.message||String(x)}
+    try{const{data:pp,error:pe}=await sb.from('payments').select('*').order('paid_on');if(pe)throw pe;PAYS=pp||[];localStorage.setItem('ol_pays',JSON.stringify(PAYS))}catch(x){PAYERR=x.message||String(x);PAYS=JSON.parse(localStorage.getItem('ol_pays')||'[]')}
+    let rec=[];try{const loc=JSON.parse(rawLocal||'{}');rec=Object.keys(loc).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&!DB[k]&&(loc[k].status||loc[k].pay||loc[k].desc));rec.forEach(k=>{DB[k]={day:k,status:lc(loc[k].status),pay:lc(loc[k].pay),desc:loc[k].desc||null}})}catch(x){}
+    if(rec.length){await persist(rec);toast('Recovered '+rec.length+' days from this device and synced them')}
+    SYNC.txt='Cloud: '+all.length+' rows loaded'+(rec.length?' · '+rec.length+' recovered from device':'')+(odd?' · '+odd+' with unexpected values':'');if(!all.length)SYNC.txt+=' (0 = table empty or blocked by RLS)';if(SETERR)SYNC.txt+=' · settings not in cloud: '+SETERR;return}catch(e){SYNC.txt='Cloud error: '+(e.message||e);console.warn(e)}}
+  DB=JSON.parse(localStorage.getItem('ol_records')||'{}');
+}
+const cache=()=>localStorage.setItem('ol_records',JSON.stringify(DB));
+let SETERR='',PAYS=[],PAYERR='';
+async function pushProfile(){const{error}=await sb.from('app_settings').upsert({id:1,data:PROFILE});if(error)throw error}
+function saveProfile(){localStorage.setItem('ol_profile',JSON.stringify(PROFILE));if(sb)pushProfile().catch(e=>toast('Settings not saved to cloud: '+e.message))}
+const row=k=>{const r=DB[k]||{};return{day:k,status:r.status||null,pay:r.pay||null,descr:r.desc||null}};
+async function persist(keys){cache();if(!sb)return;try{const up=keys.filter(k=>DB[k]).map(row),del=keys.filter(k=>!DB[k]);if(up.length){const{error}=await sb.from('attendance').upsert(up,{onConflict:'day'});if(error)throw error}for(const k of del){const{error}=await sb.from('attendance').delete().eq('day',k);if(error)throw error}}catch(e){D('sync').textContent='Cloud save failed: '+(e.message||e);toast('Cloud save failed. Saved on this device only.')}}
+function setRec(k,p){DB[k]=Object.assign({day:k},DB[k]||{},p);const r=DB[k];if(!r.status&&!r.pay&&!r.desc)delete DB[k]}
+const recs=(y,m)=>{const pre=y+'-'+pad(m);return Object.keys(DB).filter(k=>k.startsWith(pre)).sort().map(k=>({key:k,...DB[k]}))};
+const pending=(y,m)=>recs(y,m).filter(r=>r.status==='present'&&r.pay==='unpaid');
+function salary(y,m){const n=pending(y,m).length,s=PROFILE.salary;return{n,base:s.base,per:s.perPresent,total:n?s.base+n*s.perPresent:0}}
+const money=n=>PROFILE.salary.currency+' '+n.toLocaleString();
+const pill=(v,M)=>v?`<span class="pill" style="background:color-mix(in srgb,${M[v][1]} 15%,transparent);color:${M[v][1]}"><i style="background:${M[v][1]}"></i>${M[v][0]}</span>`:'';
+
+/* ---------- Fingerprint (WebAuthn, phone only) ---------- */
+const isPhone=()=>window.PublicKeyCredential&&matchMedia('(pointer:coarse)').matches&&/Android|iPhone|iPad/i.test(navigator.userAgent);
+const rnd=n=>crypto.getRandomValues(new Uint8Array(n));
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function fpAvail(){try{return isPhone()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()}catch(e){return false}}
+async function fpEnroll(){
+  try{const c=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:'Office Log'},user:{id:rnd(16),name:AU,displayName:PROFILE.name||AU},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},timeout:60000}});
+    localStorage.setItem('ol_cred',b64(c.rawId));return true}catch(e){return false}
+}
+async function fpVerify(){
+  const id=localStorage.getItem('ol_cred');if(!id)return false;
+  try{await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{id:unb64(id),type:'public-key',transports:['internal']}],userVerification:'required',timeout:60000}});return true}catch(e){return false}
+}
+async function initLogin(){
+  if(await fpAvail()&&localStorage.getItem('ol_cred')){const b=D('fp');b.style.display='block';b.onclick=async()=>{if(await fpVerify())enter();else D('err').textContent='Fingerprint not recognised.'};setTimeout(b.onclick,300)}
+}
+
+/* ---------- Shell ---------- */
+const TABS=[['dashboard','Dashboard'],['log','Daily log'],['sc','Status calendar'],['pc','Pay calendar'],['an','Analytics'],['hol','Holidays'],['sa','Salary'],['set','Settings']];
+const T=new Date(),TK=iso(T);
+const P={};['log','sc','pc','an','sa'].forEach(v=>P[v]={y:T.getFullYear(),m:T.getMonth()+1,s:'all',sel:null});
+let cur='dashboard',editKey=null,mS=null,mP=null;
+const R={};
+function mkClient(){if(!sb&&window.supabase)sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}})}
+function enter(){boot()}
+function loginEmail(){const v=D('u').value.trim();return v.includes('@')?v:(v.toLowerCase()==='rohan'?'rohanadhikariadk@gmail.com':v)}
+D('loginBtn').onclick=async()=>{mkClient();D('err').textContent='';if(!sb){D('err').textContent='Cannot reach Supabase. Check your connection.';return}
+  const{error}=await sb.auth.signInWithPassword({email:loginEmail(),password:D('pw').value});if(error){D('err').textContent=error.message;return}
+  const first=!localStorage.getItem('ol_cred');enter();if(first&&await fpAvail()&&confirm('Enable fingerprint unlock on this phone?')){if(await fpEnroll())toast('Fingerprint enabled')}};
+D('pw').onkeydown=e=>{if(e.key==='Enter')D('loginBtn').click()};
+D('outBtn').onclick=async()=>{try{await sb.auth.signOut()}catch(e){}location.reload()};
+D('addBtn').onclick=()=>openLog(TK);
+D('mCancel').onclick=()=>D('mbg').classList.remove('on');
+D('mSave').onclick=saveLog;
+async function boot(){
+  D('login').style.display='none';D('app').style.display='block';
+  mkClient();
+  const{data:ses}=sb?await sb.auth.getSession():{data:{}};
+  if(!ses.session){D('app').style.display='none';D('login').style.display='flex';D('err').textContent='Please sign in with your email and password.';return}
+  await loadAll();
+  const shown=()=>/error|failed|not in cloud/i.test(SYNC.txt)?SYNC.txt:(PROFILE.role||'');
+  D('sync').textContent=shown();D('sync').onclick=async()=>{await loadAll();D('sync').textContent=shown();refresh()};D('barName').textContent=PROFILE.name;
+  D('tabs').innerHTML=TABS.map(t=>`<button class="tab" data-t="${t[0]}" onclick="go('${t[0]}')">${t[1]}</button>`).join('');
+  go('dashboard');if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});setTimeout(autoStatements,2500);
+}
+function go(id){cur=id;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===id));R[id]();
+  const a=document.querySelector('.tab.on');if(a)a.scrollIntoView({inline:'center',block:'nearest'});
+  if(id!=='hol')window.scrollTo(0,0)}
+const refresh=()=>R[cur]();
+let tt;function toast(m){const t=D('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200)}
+const page=h=>D('main').innerHTML=banner()+h;
+
+/* shared UI */
+function picker(v){
+  const ys=new Set([T.getFullYear(),P[v].y]);Object.keys(DB).forEach(k=>ys.add(+k.slice(0,4)));
+  return `<div class="pick"><select onchange="pk('${v}','m',this.value)" aria-label="Month">${ENM.map((n,i)=>`<option value="${i+1}" ${i+1==P[v].m?'selected':''}>${n}</option>`).join('')}</select>
+  <select onchange="pk('${v}','y',this.value)" aria-label="Year">${[...ys].sort().map(y=>`<option ${y==P[v].y?'selected':''}>${y}</option>`).join('')}</select></div>`;
+}
+function pk(v,k,val){P[v][k]=+val;P[v].sel=null;refresh()}
+function head(v,title,extra=''){return `<div class="top"><h1>${title}</h1><div style="display:flex;gap:8px;flex-wrap:wrap">${extra}${picker(v)}</div></div>`}
+const stat=(l,v,s='',c='')=>`<div class="st"><div class="l">${l}</div><div class="v num" style="${c?'color:'+c:''}">${v}</div>${s?`<div class="s">${s}</div>`:''}</div>`;
+function bars(items){const t=sum(items.map(i=>i[1]))||1;return `<div class="bars">${items.map(i=>`<div style="width:${i[1]/t*100}%;background:${i[2]}"></div>`).join('')}</div><div class="leg">${items.map(i=>`<span><i style="background:${i[2]}"></i>${i[0]} ${i[1]}</span>`).join('')}</div>`}
+function statusBars(rs){return bars(Object.keys(SM).map(s=>[SM[s][0],rs.filter(r=>r.status===s).length,SM[s][1]]))}
+function entryRow(r,actions=true){
+  const ad=pd(r.key),b=adToBs(ad);
+  return `<div class="row"><div class="dt"><b class="num">${ad.getDate()}</b><span>${dname(ad).slice(0,3)}</span></div>
+  <div class="mid"><div class="t">${r.desc?esc(r.desc):'<span style="color:var(--mut);font-weight:400">No school</span>'}</div><div class="s">${NPM[b.m-1]} ${b.d}, ${b.y} BS</div></div>
+  <div class="pp">${pill(r.status,SM)}${pill(r.pay,PM)}</div>
+  ${actions?`<div class="ra"><button title="Edit" onclick="openLog('${r.key}')">✎</button><button title="Delete" onclick="del('${r.key}')">×</button></div>`:''}</div>`}
+function del(k){if(confirm('Delete this day’s record?')){delete DB[k];persist([k]).then(()=>{toast('Entry deleted');refresh()})}}
+function calHtml(v,mode){
+  const{y,m,sel}=P[v];let h=`<div class="dow">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<span>${d}</span>`).join('')}</div><div class="days">`;
+  for(let i=0;i<new Date(y,m-1,1).getDay();i++)h+='<div class="day e"></div>';
+  for(let d=1;d<=dim(y,m);d++){const dt=new Date(y,m-1,d),k=iso(dt),r=DB[k],b=adToBs(dt);
+    let c='day';if(r&&mode==='s'&&r.status)c+=' s-'+r.status;if(r&&mode==='p'&&r.pay)c+=' p-'+r.pay;if(k===TK)c+=' t';if(k===sel)c+=' sel';
+    h+=`<button class="${c}" onclick="selDay('${v}','${k}')">${d}<small>${npn(b.d)}</small>${mode==='s'&&r&&r.pay?`<span class="dot" style="background:${PM[r.pay][1]}"></span>`:''}</button>`}
+  return h+'</div>'}
+function selDay(v,k){P[v].sel=k;refresh()}
+
+/* ---------- Dashboard ---------- */
+R.dashboard=()=>{
+  const y=T.getFullYear(),m=T.getMonth()+1,rs=recs(y,m),s=salary(y,m),tr=DB[TK],b=adToBs(T);
+  page(`<div class="hero"><div class="l">Pending salary · ${ENM[m-1]} ${y}</div><div class="v num">${money(s.total)}</div>
+    <div class="s">${s.n?`${money(s.base)} base + ${s.n} present unpaid × ${money(s.per)}`:'No present unpaid days yet'}</div></div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <div><div style="font-weight:600">${fmt(T)}</div><div style="font-size:12.5px;color:var(--mut)">${dname(T)} · ${NPM[b.m-1]} ${b.d}, ${b.y} BS</div>
+    <div style="margin-top:8px;display:flex;gap:6px">${tr?pill(tr.status,SM)+pill(tr.pay,PM):'<span style="color:var(--mut);font-size:13px">Today is not logged</span>'}</div></div>
+    <button class="btn a sm" onclick="openLog('${TK}')">${tr?'Edit today':'Log today'}</button></div></div>
+  <div class="grid c4">${stat('Present',rs.filter(r=>r.status==='present').length,ENM[m-1],'var(--present)')}${stat('Pending days',s.n,'present + unpaid','var(--unpaid)')}${stat('Paid days',rs.filter(r=>r.pay==='paid').length,'this month','var(--paid)')}${stat('Leave',rs.filter(r=>r.status==='leave').length,'this month','var(--leave)')}</div>
+  <div class="card"><h3>Status this month</h3>${rs.length?statusBars(rs):'<div class="empty">Nothing logged yet.</div>'}</div>
+  <div class="card"><h3>Recent entries</h3>${Object.keys(DB).sort().reverse().slice(0,5).map(k=>entryRow({key:k,...DB[k]},false)).join('')||'<div class="empty">No entries yet.</div>'}</div>`)};
+
+/* ---------- Daily log ---------- */
+R.log=()=>{
+  let rs=recs(P.log.y,P.log.m);const f=P.log.s;if(f!=='all')rs=rs.filter(r=>r.status===f);
+  const filt=`<select onchange="P.log.s=this.value;refresh()" aria-label="Status filter" style="padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:14px"><option value="all">All statuses</option>${Object.keys(SM).map(s=>`<option value="${s}" ${f===s?'selected':''}>${SM[s][0]}</option>`).join('')}</select>`;
+  page(head('log','Daily log',filt)+`<div style="font-size:13px;color:var(--mut);margin-bottom:10px">${rs.length} entr${rs.length==1?'y':'ies'} · ${ENM[P.log.m-1]} ${P.log.y}</div>
+  <div class="card" style="padding:4px 16px">${rs.length?rs.reverse().map(r=>entryRow(r)).join(''):'<div class="empty">No entries for this month. Tap + to log a day.</div>'}</div>`)};
+
+/* ---------- Status calendar ---------- */
+R.sc=()=>{
+  const{y,m,sel}=P.sc,rs=recs(y,m);let det='';
+  if(sel){const dt=pd(sel),b=adToBs(dt),r=DB[sel]||{},h=holOf(b.y,b.m,b.d);
+    det=`<div class="det"><div class="h">${fmt(dt)}</div><div class="s">${dname(dt)} · ${NPM[b.m-1]} ${b.d}, ${b.y} BS${h?' · '+h:''}</div>
+    <div class="dr"><span>Status</span><span>${pill(r.status,SM)||'—'}</span></div><div class="dr"><span>Pay</span><span>${pill(r.pay,PM)||'—'}</span></div>
+    <div class="dr"><span>School</span><span>${r.desc?esc(r.desc):'—'}</span></div>
+    <button class="btn sm a" style="margin-top:10px" onclick="openLog('${sel}')">Edit this day</button></div>`}
+  page(head('sc','Status calendar')+`<div class="card">${calHtml('sc','s')}
+    <div class="leg">${Object.keys(SM).map(s=>`<span><i style="background:${SM[s][1]}"></i>${SM[s][0]}</span>`).join('')}<span><i style="background:var(--paid);border-radius:50%"></i>Paid dot</span><span><i style="background:var(--unpaid);border-radius:50%"></i>Unpaid dot</span></div>${det}</div>
+  <div class="card"><h3>${ENM[m-1]} ${y} breakdown</h3>${rs.length?statusBars(rs):'<div class="empty">No entries this month.</div>'}</div>
+  <div class="card" style="padding:4px 16px"><h3 style="padding-top:14px">Entries</h3>${rs.length?rs.map(r=>entryRow(r,false)).join(''):'<div class="empty">No entries this month.</div>'}</div>`)};
+
+/* ---------- Pay calendar ---------- */
+R.pc=()=>{
+  const{y,m,sel}=P.pc,rs=recs(y,m),un=rs.filter(r=>r.pay==='unpaid').length;let det='';
+  if(sel){const dt=pd(sel),r=DB[sel]||{};
+    det=`<div class="det"><div class="h">${fmt(dt)}</div><div class="s">${dname(dt)}</div>
+    <div class="dr"><span>Status</span><span>${pill(r.status,SM)||'—'}</span></div><div class="dr"><span>Pay</span><span>${pill(r.pay,PM)||'—'}</span></div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn sm a" onclick="payOne('${sel}','paid')">Paid</button><button class="btn sm" onclick="payOne('${sel}','unpaid')">Unpaid</button><button class="btn sm" onclick="payOne('${sel}',null)">Clear</button><button class="btn sm" onclick="openLog('${sel}')">Edit day</button></div></div>`}
+  page(head('pc','Pay calendar',`<button class="btn a sm" onclick="markMonth()" ${un?'':'disabled style="opacity:.5"'}>Mark month paid</button>`)+`<div class="card">${calHtml('pc','p')}
+    <div class="leg"><span><i style="background:var(--paid)"></i>Paid</span><span><i style="background:var(--unpaid)"></i>Unpaid</span><span><i style="background:var(--soft)"></i>Not set</span></div>${det}</div>
+  <div class="card"><h3>${ENM[m-1]} ${y} pay</h3>${bars([['Paid',rs.filter(r=>r.pay==='paid').length,'var(--paid)'],['Unpaid',un,'var(--unpaid)']])}</div>
+  <div class="card" style="padding:4px 16px"><h3 style="padding-top:14px">Entries</h3>${rs.length?rs.map(r=>entryRow(r,false)).join(''):'<div class="empty">No entries this month.</div>'}</div>`)};
+async function payOne(k,v){setRec(k,{pay:v});await persist([k]);refresh();toast(v?'Marked '+v:'Pay cleared')}
+async function markMonth(){const{y,m}=P.pc,ks=recs(y,m).filter(r=>r.pay==='unpaid').map(r=>r.key);if(!ks.length)return;
+  if(!confirm(`Mark ${ks.length} unpaid day(s) of ${ENM[m-1]} ${y} as paid?`))return;
+  ks.forEach(k=>setRec(k,{pay:'paid'}));await persist(ks);refresh();toast(ks.length+' days marked paid')}
+
+/* ---------- Analytics ---------- */
+R.an=()=>{
+  const{y,m}=P.an,rs=recs(y,m),c=s=>rs.filter(r=>r.status===s).length,pa=rs.filter(r=>r.pay==='paid').length,un=rs.filter(r=>r.pay==='unpaid').length;
+  page(head('an','Analytics')+`<div class="sec">Month overview</div><div class="grid c3">${stat('Days in month',dim(y,m))}${stat('Logged days',pa+un,`${pa} paid + ${un} unpaid`)}${stat('Entries',rs.length,'all statuses')}</div>
+  <div class="sec">Day status</div><div class="grid c4">${stat('Present',c('present'),'','var(--present)')}${stat('Holiday',c('holiday'),'','var(--holiday)')}${stat('Leave',c('leave'),'','var(--leave)')}${stat('Offday',c('offday'),'','var(--offday)')}</div>
+  <div class="sec">Payment</div><div class="grid">${stat('Paid days',pa,'','var(--paid)')}${stat('Unpaid days',un,'','var(--unpaid)')}</div>
+  <div class="card"><h3>${ENM[m-1]} ${y}</h3>${rs.length?statusBars(rs):'<div class="empty">No entries this month.</div>'}</div>`)};
+
+/* ---------- Holidays ---------- */
+R.hol=()=>{
+  const groups={};HOL.forEach(h=>{const k=h[0]*100+h[1];(groups[k]=groups[k]||[]).push(h)});
+  const nb=adToBs(T),nowK=nb.y*100+nb.m,keys=Object.keys(groups).map(Number).sort((a,b)=>a-b),target=keys.find(k=>k>=nowK);
+  page(`<div class="top"><h1>Holidays</h1></div><div style="font-size:12.5px;color:var(--mut);line-height:1.5">Public holidays by Nepali month. Dates follow the lunar calendar, so check Hamro Patro and edit the list in the code if anything differs.</div>`+
+  keys.map(k=>{const y=Math.floor(k/100),m=k%100;
+    return `<div class="hm" id="hm${k}"><h4>${NPM[m-1]} ${y}</h4><div class="sub">${groups[k].length} holiday${groups[k].length>1?'s':''}${k===nowK?' · current month':''}</div><div class="card" style="padding:4px 16px">`+
+    groups[k].sort((a,b)=>a[2]-b[2]).map(h=>{const ad=bsToAd(h[0],h[1],h[2]);return `<div class="hi ${iso(ad)<TK?'past':''}"><div class="d num">${ad.getDate()}</div><div><div class="n">${h[3]}</div><div class="a">${dname(ad)}, ${ENM[ad.getMonth()].slice(0,3)} ${ad.getFullYear()} · ${NPM[h[1]-1]} ${h[2]} BS</div></div></div>`}).join('')+'</div></div>'}).join(''));
+  const el=D('hm'+target);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),60)};
+
+/* ---------- Salary ---------- */
+R.sa=()=>{
+  const{y,m}=P.sa,rs=recs(y,m),s=salary(y,m),pa=rs.filter(r=>r.pay==='paid').length,un=rs.filter(r=>r.pay==='unpaid').length,pend=pending(y,m);
+  page(head('sa','Salary',`<button class="btn sm" onclick="statementPdf(P.sa.y,P.sa.m)">Download PDF</button>`)+`<div class="hero"><div class="l">Pending salary · ${ENM[m-1]} ${y}</div><div class="v num">${money(s.total)}</div><div class="s">Counts present days that are marked unpaid</div></div>
+  <div class="card"><h3>Breakdown</h3><div class="mini"><span>Base salary</span><b class="num">${s.n?money(s.base):'—'}</b></div><div class="mini"><span>Present + unpaid days</span><b class="num">${s.n}</b></div>
+  <div class="mini"><span>Rate per day</span><b class="num">${money(s.per)}</b></div><div class="mini"><span>Days amount</span><b class="num">${money(s.n*s.per)}</b></div><div class="mini"><span>Total</span><b class="num">${money(s.total)}</b></div></div>
+  <div class="card"><h3>Pay-day counts</h3><div class="mini"><span>Paid days</span><b class="num" style="color:var(--paid)">${pa}</b></div><div class="mini"><span>Unpaid days</span><b class="num" style="color:var(--unpaid)">${un}</b></div></div>
+  ${payCard(y,m)}
+  <div class="card" style="padding:4px 16px"><h3 style="padding-top:14px">Days counted</h3>${pend.length?pend.map(r=>entryRow(r,false)).join(''):'<div class="empty">No present + unpaid days this month.</div>'}</div>`)};
+
+/* ---------- Settings ---------- */
+R.set=async()=>{
+  const s=PROFILE.salary,fp=await fpAvail(),on=!!localStorage.getItem('ol_cred');
+  page(`<div class="top"><h1>Settings</h1></div>
+  <div class="card"><h3>Profile</h3><div class="f"><label>Name</label><input id="sN" value="${esc(PROFILE.name)}"></div><div class="f"><label>Role</label><input id="sR" value="${esc(PROFILE.role||'')}"></div></div>
+  <div class="card"><h3>Salary</h3><div class="set"><div>Base salary<small>Added once when there are counted days</small></div><input type="number" id="sB" value="${s.base}"></div>
+  <div class="set"><div>Rate per day<small>For each present + unpaid day</small></div><input type="number" id="sP" value="${s.perPresent}"></div>
+  <div class="set"><div>Currency</div><input id="sC" value="${esc(s.currency)}"></div></div>
+  ${fp?`<div class="card"><h3>Security</h3><div class="set"><div>Fingerprint unlock<small>${on?'Enabled on this phone':'Sign in with your fingerprint'}</small></div><button class="btn sm" onclick="toggleFp()">${on?'Disable':'Enable'}</button></div></div>`:''}
+  <div class="card"><h3>Data</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm a" onclick="syncAll()">Sync all to cloud</button><button class="btn sm" onclick="exportCSV()">Export CSV</button><button class="btn sm" onclick="exportJSON()">Backup</button><button class="btn sm" onclick="D('imp').click()">Import / Restore</button><input type="file" id="imp" accept=".json,.csv,application/json,text/csv" hidden onchange="importJSON(event)"></div></div>
+  <button class="btn p" onclick="saveSettings()">Save settings</button>`)};
+async function toggleFp(){if(localStorage.getItem('ol_cred')){localStorage.removeItem('ol_cred');toast('Fingerprint disabled')}else if(await fpEnroll())toast('Fingerprint enabled');else toast('Could not enable fingerprint');R.set()}
+function saveSettings(){PROFILE.name=D('sN').value.trim()||'User';PROFILE.role=D('sR').value.trim();PROFILE.salary={base:+D('sB').value||0,perPresent:+D('sP').value||0,currency:D('sC').value.trim()||'Rs'};saveProfile();D('barName').textContent=PROFILE.name;toast('Settings saved')}
+async function syncAll(){if(!sb){toast('No cloud connection');return}const ks=Object.keys(DB);
+  try{for(let i=0;i<ks.length;i+=500){const{error}=await sb.from('attendance').upsert(ks.slice(i,i+500).map(row),{onConflict:'day'});if(error)throw error}
+  await pushProfile();const{count,error}=await sb.from('attendance').select('*',{count:'exact',head:true});if(error)throw error;
+  D('sync').textContent='';toast('Synced. Cloud has '+count+' days')}catch(e){toast('Sync failed: '+(e.message||e));D('sync').textContent='Cloud sync failed: '+(e.message||e)}}
+/* ---------- Missing-day banner ---------- */
+function missing(){const out=[],n=new Date();for(let i=0;i<7;i++){const d=new Date(n.getFullYear(),n.getMonth(),n.getDate()-i),k=iso(d);if(i===0&&n.getHours()<17)continue;if(d.getDay()===6)continue;const b=adToBs(d);if(holOf(b.y,b.m,b.d))continue;if(!DB[k]||!DB[k].status)out.push(k)}return out}
+function banner(){if(!Object.keys(DB).length)return '';const m=missing();if(!m.length)return '';
+  return `<div class="card" style="border-color:var(--leave);display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b>${m.length} working day${m.length>1?'s':''} not logged</b><div style="font-size:12px;color:var(--mut);margin-top:2px">${m.slice(0,4).map(k=>fmt(pd(k)).slice(0,6)).join(', ')}${m.length>4?' …':''}</div></div><button class="btn a sm" onclick="openLog('${m[0]}')">Log now</button></div>`}
+/* ---------- Payment history ---------- */
+function payCard(y,m){const pre=y+'-'+pad(m),ps=PAYS.filter(p=>String(p.paid_on).startsWith(pre)).sort((a,b)=>String(b.paid_on)<String(a.paid_on)?-1:1);
+  return `<div class="card"><h3>Payments received</h3><div class="mini"><span>${ENM[m-1]} total</span><b class="num" style="color:var(--paid)">${money(sum(ps.map(p=>+p.amount)))}</b></div><div class="mini"><span>All time</span><b class="num">${money(sum(PAYS.map(p=>+p.amount)))}</b></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0"><input class="fi" type="date" id="pDate" value="${TK}"><input class="fi" type="number" id="pAmt" placeholder="Amount" inputmode="decimal"><input class="fi" id="pNote" placeholder="Note (optional)" style="grid-column:1/3"><button class="btn a" style="grid-column:1/3" onclick="addPay()">Record payment</button></div>
+  ${PAYERR?`<div style="font-size:12px;color:var(--unpaid)">Payments not in cloud: ${esc(PAYERR)}</div>`:''}
+  ${ps.map(p=>{const d=pd(String(p.paid_on).slice(0,10));return `<div class="row"><div class="dt"><b class="num">${d.getDate()}</b><span>${ENM[d.getMonth()].slice(0,3)}</span></div><div class="mid"><div class="t num">${money(+p.amount)}</div><div class="s">${p.note?esc(p.note):'—'}</div></div><div class="ra"><button onclick="delPay('${p.id}')">×</button></div></div>`}).join('')||'<div class="empty">No payments recorded this month.</div>'}</div>`}
+async function addPay(){const d=D('pDate').value,a=+D('pAmt').value,n=D('pNote').value.trim()||null;if(!d||!(a>0)){toast('Enter a date and amount');return}
+  let rec={id:'l'+Date.now(),paid_on:d,amount:a,note:n};
+  if(sb){const{data,error}=await sb.from('payments').insert({paid_on:d,amount:a,note:n}).select().single();if(error){toast('Not saved: '+error.message);return}rec=data}
+  PAYS.push(rec);localStorage.setItem('ol_pays',JSON.stringify(PAYS));toast('Payment recorded');refresh()}
+async function delPay(id){if(!confirm('Delete this payment?'))return;if(sb&&!String(id).startsWith('l')){const{error}=await sb.from('payments').delete().eq('id',id);if(error){toast('Failed: '+error.message);return}}
+  PAYS=PAYS.filter(p=>String(p.id)!==String(id));localStorage.setItem('ol_pays',JSON.stringify(PAYS));refresh()}
+/* ---------- Monthly PDF statement ---------- */
+function statementPdf(y,m){
+  if(!window.jspdf){toast('PDF library did not load. Check your connection.');return}
+  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a4'}),rs=recs(y,m),s=salary(y,m),c=x=>rs.filter(r=>r.status===x).length,pa=rs.filter(r=>r.pay==='paid').length,un=rs.filter(r=>r.pay==='unpaid').length,
+    ps=PAYS.filter(p=>String(p.paid_on).startsWith(y+'-'+pad(m))),rc=sum(ps.map(p=>+p.amount));let yy=20;
+  const nl=(n=5.5)=>{yy+=n;if(yy>282){doc.addPage();yy=20}};
+  const kv=(a,b,x)=>{doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(110);doc.text(a,x,yy);doc.setTextColor(20);doc.text(String(b),x+76,yy,{align:'right'})};
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(20);doc.text('Monthly statement',14,yy);nl(7);
+  doc.setFont('helvetica','normal');doc.setFontSize(11);doc.setTextColor(110);doc.text(`${ENM[m-1]} ${y}   |   ${PROFILE.name}${PROFILE.role?'   |   '+PROFILE.role:''}`,14,yy);nl(10);
+  const L=[['Days in month',dim(y,m)],['Logged days (paid+unpaid)',pa+un],['Present',c('present')],['Holiday',c('holiday')],['Leave',c('leave')],['Offday',c('offday')]];
+  const Rr=[['Paid days',pa],['Unpaid days',un],['Present + unpaid',s.n],['Pending salary',money(s.total)],['Payments received',money(rc)],['Generated',fmt(new Date())]];
+  L.forEach((a,i)=>{kv(a[0],a[1],14);kv(Rr[i][0],Rr[i][1],110);nl()});
+  const cols=[14,38,62,88,110],row=(a,b)=>{doc.setFont('helvetica',b?'bold':'normal');doc.setFontSize(9);doc.setTextColor(b?110:20);a.forEach((t,i)=>doc.text(String(t),cols[i],yy));nl(5)};
+  const h2=t=>{nl(4);doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(20);doc.text(t,14,yy);nl(6)};
+  h2('Daily entries');row(['Date','Day','Status','Pay','School'],1);
+  rs.forEach(r=>{const d=pd(r.key);row([fmt(d),dname(d).slice(0,3),r.status||'-',r.pay||'-',(r.desc||'-').slice(0,45)])});
+  if(ps.length){h2('Payments received');ps.forEach(p=>row([fmt(pd(String(p.paid_on).slice(0,10))),money(+p.amount),'','',p.note||'']))}
+  doc.save('office-log-'+y+'-'+pad(m)+'.pdf');toast('Statement downloaded')}
+function autoStatements(){const t=new Date(),last=t.getDate()===dim(t.getFullYear(),t.getMonth()+1);let py=t.getFullYear(),pm=t.getMonth();if(pm===0){pm=12;py--}
+  const list=[[py,pm]];if(last)list.push([t.getFullYear(),t.getMonth()+1]);
+  for(const[y,m]of list){const k='ol_stmt_'+y+'-'+pad(m);if(localStorage.getItem(k)||!recs(y,m).length)continue;localStorage.setItem(k,'1');statementPdf(y,m);break}}
+function dl(n,c,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:t}));a.download=n;a.click()}
+function exportCSV(){let c='Date,BS Date,Day,Status,Pay,School\n';Object.keys(DB).sort().forEach(k=>{const r=DB[k],d=pd(k),b=adToBs(d);c+=`${k},${b.y}-${pad(b.m)}-${pad(b.d)},${dname(d)},${r.status||''},${r.pay||''},"${(r.desc||'').replace(/"/g,'""')}"\n`});dl('office-log-'+TK+'.csv',c,'text/csv');toast('CSV exported')}
+function exportJSON(){dl('office-log-backup-'+TK+'.json',JSON.stringify({records:DB,profile:PROFILE},null,2),'application/json');toast('Backup downloaded')}
+function parseCSV(t){const out=[];let r=[],f='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c=='"'&&t[i+1]=='"'){f+='"';i++}else if(c=='"')q=false;else f+=c}else if(c=='"')q=true;else if(c==','){r.push(f);f=''}else if(c=='\n'||c=='\r'){if(c=='\r'&&t[i+1]=='\n')i++;r.push(f);f='';if(r.some(x=>x))out.push(r);r=[]}else f+=c}if(f||r.length){r.push(f);out.push(r)}return out}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=async()=>{try{
+  const lc=v=>v?String(v).trim().toLowerCase():null;let inc={};
+  if(/\.csv$/i.test(f.name)){const rows=parseCSV(rd.result.replace(/^\uFEFF/,'')),h=rows[0].map(x=>x.trim().toLowerCase()),ix=n=>h.indexOf(n);
+    rows.slice(1).forEach(r=>{const k=(r[ix('ad date')]||'').trim();if(/^\d{4}-\d{2}-\d{2}$/.test(k))inc[k]={day:k,status:lc(r[ix('status')]),pay:lc(r[ix('pay')]),desc:(r[ix('description')]||r[ix('school')]||'').trim()||null}})}
+  else{const o=JSON.parse(rd.result);Object.keys(o.records||{}).forEach(k=>{const r=o.records[k];inc[k]={day:k,status:lc(r.status),pay:lc(r.pay),desc:r.desc||null}});if(o.profile){PROFILE=o.profile;saveProfile()}}
+  const ks=Object.keys(inc).filter(k=>inc[k].status||inc[k].pay||inc[k].desc);if(!ks.length){toast('No valid rows found');return}
+  ks.forEach(k=>DB[k]=inc[k]);await persist(ks);toast(ks.length+' days imported');refresh()}catch(x){toast('Invalid backup file')}};rd.readAsText(f)}
+
+/* ---------- Log modal with smart school suggestions ---------- */
+function schools(){const f={};Object.keys(DB).sort().forEach((k,i)=>{const d=(DB[k].desc||'').trim();if(d){const o=f[d]||(f[d]={n:0,last:0});o.n++;o.last=i}});return Object.keys(f).sort((a,b)=>f[b].n-f[a].n||f[b].last-f[a].last)}
+function segs(){
+  D('mSt').innerHTML='';D('mPy').innerHTML='';
+  [['mSt',SM,mS,v=>mS=mS===v?null:v],['mPy',PM,mP,v=>mP=mP===v?null:v]].forEach(([id,M,val,fn])=>Object.keys(M).forEach(k=>{
+    const b=document.createElement('button');b.className='sb';const on=val===k;
+    if(on){b.style.cssText=`border-color:${M[k][1]};color:${M[k][1]};background:color-mix(in srgb,${M[k][1]} 14%,transparent)`}
+    b.innerHTML=`<i style="background:${M[k][1]}"></i>${M[k][0]}`;b.onclick=()=>{fn(k);segs()};D(id).appendChild(b)}))}
+function openLog(k){
+  editKey=k;const ad=pd(k),r=DB[k]||{};mS=r.status||null;mP=r.pay||null;
+  D('mT').textContent=DB[k]?'Edit day':'Log a day';D('mS').textContent=fmt(ad)+' · '+dname(ad);D('mD').value=k;D('mDesc').value=r.desc||'';
+  const ss=schools();D('schools').innerHTML=ss.map(s=>`<option value="${esc(s)}">`).join('');
+  D('mChips').innerHTML=ss.slice(0,6).map(s=>`<button class="chip" type="button" data-s="${esc(s)}">${esc(s)}</button>`).join('');
+  D('mChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>D('mDesc').value=c.dataset.s);
+  segs();D('mbg').classList.add('on')}
+async function saveLog(){
+  const nk=D('mD').value;if(!nk){toast('Pick a date');return}
+  const keys=[nk];if(nk!==editKey&&DB[editKey]){const old=DB[editKey];delete DB[editKey];keys.push(editKey);DB[nk]=Object.assign({day:nk},old)}
+  setRec(nk,{status:mS,pay:mP,desc:D('mDesc').value.trim()||null});
+  await persist(keys);D('mbg').classList.remove('on');refresh();toast('Saved')}
+
+(async()=>{mkClient();if(!sb)return;const{data}=await sb.auth.getSession();
+  if(data&&data.session){if(localStorage.getItem('ol_cred')&&await fpAvail())initLogin();else enter()}})();
+</script>
+</body>
+</html>
